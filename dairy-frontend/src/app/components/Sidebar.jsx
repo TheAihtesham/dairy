@@ -5,7 +5,6 @@ import {
   Home,
   Users,
   Factory,
-  ShoppingCart,
   Milk,
   Package,
   Boxes,
