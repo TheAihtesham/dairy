@@ -1,0 +1,106 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+
+model Employee {
+  employee_id  String   @id @default(cuid())
+  name         String
+  role         String
+  contact      String
+  address      String
+  salary       Float
+  joining_date DateTime
+  
+}
+
+model Supplier {
+  supplier_id    String             @id @default(cuid())
+  name           String
+  contact        String
+  address        String
+  milk_type      String
+  rate_per_litre Float
+  purchases      SupplierPurchase[]
+}
+
+model Customer {
+  customer_id String   @id @default(cuid())
+  name        String
+  contact     String
+  address     String
+  type        String   // e.g. Regular / Retail / Wholesale
+  sales       Sale[]
+  deliveries  Delivery[]
+}
+
+model MilkRate {
+  rate_id        String                 @id @default(cuid())
+  milk_type      String
+  rate_per_litre Float
+  effective_from DateTime
+  manufacturing  ProductManufacturing[]
+}
+
+model ProductManufacturing {
+  manufacturing_id   String   @id @default(cuid())
+  product_name       String
+  milk_used_litres   Float
+  quantity_produced  Float
+  unit               String
+  cost_of_production Float
+  rate_id            String
+  milkRate           MilkRate @relation(fields: [rate_id], references: [rate_id])
+  inventory          Inventory[]
+}
+
+model Inventory {
+  inventory_id     String                @id @default(cuid())
+  product_name     String
+  quantity         Float
+  unit             String
+  manufacturing_id String
+  manufacturing    ProductManufacturing  @relation(fields: [manufacturing_id], references: [manufacturing_id])
+}
+
+model Sale {
+  sale_id       String    @id @default(cuid())
+  sale_date     DateTime
+  customer_id   String
+  product_name  String
+  quantity      Float
+  rate_per_unit Float
+  total_amount  Float
+  customer      Customer  @relation(fields: [customer_id], references: [customer_id])
+}
+
+model Delivery {
+  delivery_id     String   @id @default(cuid())
+  customer_id     String
+  milk_type       String
+  quantity_litres Float
+  rate_per_litre  Float
+  total_amount    Float
+  customer        Customer @relation(fields: [customer_id], references: [customer_id])
+}
+
+model SupplierPurchase {
+  purchase_id     String   @id @default(cuid())
+  supplier_id     String
+  milk_type       String
+  quantity_litres Float
+  rate            Float
+  total_cost      Float
+  supplier        Supplier @relation(fields: [supplier_id], references: [supplier_id])
+}
